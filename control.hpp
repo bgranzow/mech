@@ -6,6 +6,7 @@
 namespace apf {
 class Vector3;
 class VectorElement;
+class Matrix3x3;
 using MeshElement = VectorElement;
 }
 
@@ -18,6 +19,7 @@ using GID = long;
 using GIDs = std::vector<GID>;
 
 using Vector = apf::Vector3;
+using Tensor = apf::Matrix3x3;
 
 typedef double (*function)(Vector const& x, double t);
 
