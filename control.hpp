@@ -51,6 +51,7 @@ struct Material {
 };
 
 struct Input {
+  int model;
   std::string geom_file;
   std::string mesh_file;
   std::string assoc_file;

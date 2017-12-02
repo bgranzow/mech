@@ -1,13 +1,8 @@
 #include <control.hpp>
 #include <disc.hpp>
 #include <displacement.hpp>
-#include <elastic.hpp>
-#include <kinematics.hpp>
 #include <mechanics.hpp>
-#include <mresidual.hpp>
-#include <first_pk.hpp>
 #include <pressure.hpp>
-#include <presidual.hpp>
 
 namespace mech {
 
@@ -18,24 +13,18 @@ static void test_assembly(Disc* d, Input* in) {
   auto press = rcp(new Pressure<T>(d, NONE));
   E.push_back(disp);
   E.push_back(press);
-  auto u = find_evaluator(E, "u");
-  auto p = find_evaluator(E, "p");
-  auto kin = rcp(new Kinematics<T>(u));
-  auto model = rcp(new Elastic<T>(u, d, in)); 
-  auto first_pk = rcp(new FirstPK<T>(model, kin, p, d, true));
-  auto mresid = rcp(new MResidual<T>(first_pk, u, d));
-  auto presid = rcp(new PResidual<T>(u, p, kin, model, d, in));
-  E.push_back(kin);
-  E.push_back(model);
-  E.push_back(first_pk);
-  E.push_back(mresid);
-  E.push_back(presid);
+  build_resid<T>(E, d, in, true);
+
+  for (size_t i= 0; i < E.size(); ++i)
+    std::cout << E[i]->name << std::endl;
+
   assemble(E, d, NULL);
 }
 
 static void run(char** argv) {
   Input in;
   Disc disc;
+  in.model = ELASTIC;
   in.geom_file = argv[1];
   in.mesh_file = argv[2];
   in.assoc_file = argv[3];

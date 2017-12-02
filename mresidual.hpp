@@ -1,5 +1,5 @@
 #ifndef mresidual_hpp
-#define mresidaul_hpp
+#define mresidual_hpp
 
 #include "control.hpp"
 

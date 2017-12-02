@@ -36,6 +36,7 @@ elastic.cpp
 first_pk.cpp
 mresidual.cpp
 presidual.cpp
+mechanics.cpp
 assembly.cpp
 )
 
