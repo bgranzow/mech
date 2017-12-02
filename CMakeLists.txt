@@ -27,22 +27,30 @@ list(REVERSE Trilinos_TPL_LIBRARIES)
 set(SOURCES
 control.cpp
 disc.cpp
+states.cpp
 displacement.cpp
 pressure.cpp
 kinematics.cpp
 model.cpp
 elastic.cpp
+first_pk.cpp
+mresidual.cpp
+presidual.cpp
 assembly.cpp
 )
 
 set(HEADERS
 control.hpp
 disc.hpp
+states.hpp
 displacement.hpp
 pressure.hpp
 kinematics.hpp
 model.hpp
 elastic.hpp
+first_pk.hpp
+mresidual.hpp
+presidual.hpp
 assembly.hpp
 )
 
