@@ -4,8 +4,8 @@
 namespace mech {
 
 template <typename T>
-Kinematics<T>::Kinematics(Integrator* disp) {
-  u = static_cast<Displacement<T>*>(disp);
+Kinematics<T>::Kinematics(RCP<Integrator> disp) {
+  u = rcp_static_cast<Displacement<T>>(disp);
   dim = u->dim;
   J = 0.0;
   F.set_dimension(dim);

@@ -5,8 +5,8 @@
 namespace mech {
 
 template <typename T>
-Elastic<T>::Elastic(Integrator* disp, Disc* d, Input* in) {
-  u = static_cast<Displacement<T>*>(disp);
+Elastic<T>::Elastic(RCP<Integrator> disp, Disc* d, Input* in) {
+  u = rcp_static_cast<Displacement<T>>(disp);
   disc = d;
   input = in;
   dim = disc->dim;
@@ -17,6 +17,7 @@ Elastic<T>::Elastic(Integrator* disp, Disc* d, Input* in) {
 
 template <typename T>
 void Elastic<T>::set_elem_set(std::string const& set) {
+  assert(input->mats.count(set));
   auto& mat = input->mats[set];
   double E = mat.E;
   double nu = mat.nu;

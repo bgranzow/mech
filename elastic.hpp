@@ -12,7 +12,7 @@ struct Elastic : public Model<T> {
 
   using TensorT = minitensor::Tensor<T>;
 
-  Elastic(Integrator* disp, Disc* disc, Input* in);
+  Elastic(RCP<Integrator> disp, Disc* disc, Input* in);
   void set_elem_set(std::string const& set);
   void in_elem(apf::MeshElement* me);
   void at_point(Vector const&, double, double);
@@ -23,7 +23,7 @@ struct Elastic : public Model<T> {
 
   Disc* disc;
   Input* input;
-  Displacement<T>* u;
+  RCP<Displacement<T>> u;
 
   int dim;
   double mu;

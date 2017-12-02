@@ -1,4 +1,4 @@
-elem set cube 1
+elem set body 1
 3 33
 node set xmin 1
 2 20

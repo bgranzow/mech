@@ -2,6 +2,7 @@
 #define control_hpp
 
 #include <Sacado_Fad_SLFad.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace apf {
 class Vector3;
@@ -16,6 +17,10 @@ struct Disc;
 struct LinAlg;
 struct Integrator;
 
+using Teuchos::RCP;
+using Teuchos::rcp;
+using Teuchos::rcp_static_cast;
+
 using ST = double;
 using FADT = Sacado::Fad::SLFad<ST, 70>;
 
@@ -25,7 +30,7 @@ using GIDs = std::vector<GID>;
 using Vector = apf::Vector3;
 using Tensor = apf::Matrix3x3;
 
-using Evaluators = std::vector<Integrator>;
+using Evaluators = std::vector<RCP<Integrator>>;
 
 typedef double (*function)(Vector const& x, double t);
 

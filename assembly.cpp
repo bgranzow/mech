@@ -3,56 +3,56 @@
 
 namespace mech {
 
-Integrator find_evaluator(Evaluators& E, std::string const& n) {
+RCP<Integrator> find_evaluator(Evaluators& E, std::string const& n) {
   for (size_t i = 0; i < E.size(); ++i)
-    if (E[i].name == n)
+    if (E[i]->name == n)
       return E[i];
   fail("integrator %s not found", n.c_str());
 }
 
 void set_time(Evaluators& E, double t_now) {
   for (size_t i = 0; i < E.size(); ++i)
-    E[i].set_time(t_now);
+    E[i]->set_time(t_now);
 }
 
 void pre_process(Evaluators& E, LinAlg* la) {
   for (size_t i = 0; i < E.size(); ++i)
-    E[i].pre_process(la);
+    E[i]->pre_process(la);
 }
 
 void set_elem_set(Evaluators& E, std::string const& n) {
   for (size_t i = 0; i < E.size(); ++i)
-    E[i].set_elem_set(n);
+    E[i]->set_elem_set(n);
 }
 
 void gather(Evaluators& E, apf::MeshElement* me) {
   for (size_t i = 0; i < E.size(); ++i)
-    E[i].gather(me);
+    E[i]->gather(me);
 }
 
 void in_elem(Evaluators& E, apf::MeshElement* me) {
   for (size_t i = 0; i < E.size(); ++i)
-    E[i].in_elem(me);
+    E[i]->in_elem(me);
 }
 
 void at_point(Evaluators& E, Vector const& p, double w, double dv) {
   for (size_t i = 0; i < E.size(); ++i)
-    E[i].at_point(p, w, dv);
+    E[i]->at_point(p, w, dv);
 }
 
 void out_elem(Evaluators& E) {
   for (size_t i = 0; i < E.size(); ++i)
-    E[i].out_elem();
+    E[i]->out_elem();
 }
 
 void scatter(Evaluators& E, LinAlg* la) {
   for (size_t i = 0; i < E.size(); ++i)
-    E[i].scatter(la);
+    E[i]->scatter(la);
 }
 
 void post_process(Evaluators& E, LinAlg* la) {
   for (size_t i = 0; i < E.size(); ++i)
-    E[i].post_process(la);
+    E[i]->post_process(la);
 }
 
 void assemble(Evaluators& E, Disc* d, LinAlg* la) {
