@@ -14,12 +14,10 @@ struct Elastic : public Model<T> {
 
   Elastic(RCP<Integrator> disp, Disc* disc, Input* in);
   void set_elem_set(std::string const& set);
-  void in_elem(apf::MeshElement* me);
   void at_point(Vector const&, double, double);
-  void out_elem();
 
-  TensorT& get_cauchy() { return sigma; }
-  TensorT& get_first_pk() { return sigma; }
+  TensorT& get_sigma_dev() { return sigma_dev; }
+  bool small_strain() { return true; }
 
   Disc* disc;
   Input* input;
@@ -30,11 +28,9 @@ struct Elastic : public Model<T> {
   double lambda;
 
   TensorT sigma;
+  TensorT sigma_dev;
   TensorT eps;
   TensorT I;
-
-  apf::MeshEntity* elem;
-  apf::Element* sigma_elem;
 
 };
 

@@ -22,7 +22,6 @@ static void zero_all(Disc* d) {
   d->p_basis = 0;
   d->u = 0;
   d->p = 0;
-  d->sigma = 0;
   d->first_pk = 0;
   d->eqps = 0;
   d->eqps_old = 0;
@@ -76,13 +75,11 @@ static void identitize(Disc* d) {
 
 static void init_states(Disc* d) {
   auto basis = apf::getIPFitShape(d->dim, 2);
-  d->sigma = apf::createField(d->mesh, "sigma", apf::MATRIX, basis);
   d->first_pk = apf::createField(d->mesh, "first_pk", apf::MATRIX, basis);
   d->eqps = apf::createField(d->mesh, "eqps", apf::SCALAR, basis);
   d->eqps_old = apf::createField(d->mesh, "eqps_old", apf::SCALAR, basis);
   d->Fp = apf::createField(d->mesh, "Fp", apf::MATRIX, basis);
   d->Fp_old = apf::createField(d->mesh, "Fp_old", apf::MATRIX, basis);
-  apf::zeroField(d->sigma);
   apf::zeroField(d->first_pk);
   apf::zeroField(d->eqps);
   apf::zeroField(d->eqps_old);

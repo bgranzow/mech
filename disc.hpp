@@ -24,7 +24,6 @@ struct Disc {
   apf::FieldShape* p_basis;
   apf::Field* u;
   apf::Field* p;
-  apf::Field* sigma;
   apf::Field* first_pk;
   apf::Field* eqps;
   apf::Field* eqps_old;
