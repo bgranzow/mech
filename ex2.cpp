@@ -16,23 +16,11 @@ static void test_displacement(Disc* d) {
       auto elem = elems[i];
       auto me = apf::createMeshElement(d->mesh, elem);
       u.gather(me);
-      for (int n = 0; n < d->num_u_elem_nodes; ++n)
-      for (int i = 0; i < d->dim; ++i)
-        std::cout << u.nodal(n, i) << std::endl;
-      std::cout << std::endl;
-
       for (int ip = 0; ip < d->num_ips; ++ip) {
         apf::getIntPoint(me, d->q_degree, ip, xi);
         auto dv = apf::getDV(me, xi);
         auto w = apf::getIntWeight(me, d->q_degree, ip);
         u.at_point(xi, w, dv);
-        for (int i = 0; i < d->dim; ++i)
-          std::cout << u.val(i) << std::endl;
-        std::cout << std::endl;
-        for (int i = 0; i < d->dim; ++i)
-        for (int j = 0; j < d->dim; ++j)
-          std::cout << u.grad(i,j) << std::endl;
-        std::cout << std::endl;
       }
       apf::destroyMeshElement(me);
     }
@@ -47,6 +35,7 @@ static void run(char** argv) {
   in.assoc_file = argv[3];
   init_disc(&disc, &in);
   build_disc_data(&disc);
+  test_displacement<ST>(&disc);
   test_displacement<FADT>(&disc);
   free_disc_data(&disc);
   free_disc(&disc);
