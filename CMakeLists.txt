@@ -51,7 +51,7 @@ elastic.hpp
 first_pk.hpp
 mresidual.hpp
 presidual.hpp
-assembly.hpp
+mechanics.hpp
 )
 
 add_library(mech ${SOURCES})
@@ -109,5 +109,9 @@ serial_test(ex1_square_1p ex1 ${square_mdl} ${square_msh_1p} ${square_assoc})
 serial_test(ex1_cube_1p ex1 ${cube_mdl} ${cube_msh_1p} ${cube_assoc})
 mpi_test(ex1_square_4p ex1 ${square_mdl} ${square_msh_4p} ${square_assoc})
 mpi_test(ex1_cube_4p ex1 ${cube_mdl} ${cube_msh_4p} ${cube_assoc})
+
+serial_test(ex2_square_1p ex2 ${square_mdl} ${square_msh_1p} ${square_assoc})
+serial_test(ex2_cube_1p ex2 ${cube_mdl} ${cube_msh_1p} ${cube_assoc})
+
 
 bob_end_package()

@@ -1,9 +1,9 @@
-#include <assembly.hpp>
 #include <control.hpp>
 #include <disc.hpp>
 #include <displacement.hpp>
 #include <elastic.hpp>
 #include <kinematics.hpp>
+#include <mechanics.hpp>
 #include <mresidual.hpp>
 #include <first_pk.hpp>
 #include <pressure.hpp>

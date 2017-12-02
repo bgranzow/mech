@@ -1,5 +1,5 @@
-#ifndef assembly_hpp
-#define assembly_hpp
+#ifndef mechanics_hpp
+#define mechanics_hpp
 
 #include "control.hpp"
 
