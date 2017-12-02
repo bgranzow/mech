@@ -7,6 +7,7 @@ Pressure<ST>::Pressure(Disc* d, int) {
   dim = disc->dim;
   elem = 0;
   residual.resize(disc->num_p_elem_nodes);
+  this->name = "p";
 }
 
 ST& Pressure<ST>::val() {
@@ -58,6 +59,7 @@ Pressure<FADT>::Pressure(Disc* d, int) {
   gradient.resize(dim);
   node_fadt.resize(disc->num_p_elem_nodes);
   residual.resize(disc->num_p_elem_nodes);
+  this->name = "p";
 }
 
 FADT& Pressure<FADT>::val() {

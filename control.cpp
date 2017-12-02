@@ -40,4 +40,7 @@ double time() {
   return PCU_Time();
 }
 
+Integrator::~Integrator() {
+}
+
 }

@@ -7,6 +7,7 @@ Displacement<ST>::Displacement(Disc* d, int) {
   dim = disc->dim;
   elem = 0;
   residual.resize(dim * disc->num_u_elem_nodes);
+  this->name = "u";
 }
 
 ST& Displacement<ST>::val(int i) {
@@ -61,6 +62,7 @@ Displacement<FADT>::Displacement(Disc* d, int) {
   gradient.resize(dim * dim);
   node_fadt.resize(dim * disc->num_u_elem_nodes);
   residual.resize(dim * disc->num_u_elem_nodes);
+  this->name = "u";
 }
 
 FADT& Displacement<FADT>::val(int i) {
