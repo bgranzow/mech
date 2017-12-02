@@ -4,7 +4,10 @@
 #include <displacement.hpp>
 #include <elastic.hpp>
 #include <kinematics.hpp>
+#include <mresidual.hpp>
+#include <first_pk.hpp>
 #include <pressure.hpp>
+#include <presidual.hpp>
 
 namespace mech {
 
@@ -16,10 +19,17 @@ static void test_assembly(Disc* d, Input* in) {
   E.push_back(disp);
   E.push_back(press);
   auto u = find_evaluator(E, "u");
+  auto p = find_evaluator(E, "p");
   auto kin = rcp(new Kinematics<T>(u));
   auto model = rcp(new Elastic<T>(u, d, in)); 
+  auto first_pk = rcp(new FirstPK<T>(model, kin, p, d, true));
+  auto mresid = rcp(new MResidual<T>(first_pk, u, d));
+  auto presid = rcp(new PResidual<T>(u, p, kin, model, d, in));
   E.push_back(kin);
   E.push_back(model);
+  E.push_back(first_pk);
+  E.push_back(mresid);
+  E.push_back(presid);
   assemble(E, d, NULL);
 }
 
