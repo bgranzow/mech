@@ -46,7 +46,7 @@ static void compute_residual(Primal* primal, double t) {
   auto t0 = time();
   zero_residual(&(primal->la));
   assemble(primal->resid, primal->disc, &(primal->la));
-  set_resid_dbcs(primal->input, &(primal->la));
+  set_resid_dbcs(primal->input, primal->disc, &(primal->la), t);
   auto t1 = time();
   print(" > residual computed in %f seconds", t1 - t0);
 }
@@ -57,9 +57,9 @@ static void compute_jacobian(Primal* primal, double t) {
   zero_residual(&(primal->la));
   zero_jacobian(&(primal->la));
   assemble(primal->jacob, primal->disc, &(primal->la));
-  synchronize(&(primal->la));
+  finalize(&(primal->la));
   set_jacob_dbcs(primal->input, primal->disc, &(primal->la), t);
-  synchronize(&(primal->la));
+  finalize(&(primal->la));
   auto t1 = time();
   print(" > jacobian computed in %f seconds", t1 - t0);
 }
@@ -71,6 +71,9 @@ void solve_linear_primal(Input* in, Disc* d, double t) {
   Primal primal(in, d);
   construct_primal(&primal, t);
   compute_jacobian(&primal, t);
+  solve(&(primal.la));
+  set_primal_to_disc(&(primal.la), d);
+//  compute_residual(&primal, t);
 }
 
 }
