@@ -13,11 +13,7 @@ static void test_assembly(Disc* d, Input* in) {
   auto press = rcp(new Pressure<T>(d, NONE));
   E.push_back(disp);
   E.push_back(press);
-  build_resid<T>(E, d, in, true);
-
-  for (size_t i= 0; i < E.size(); ++i)
-    std::cout << E[i]->name << std::endl;
-
+  build_resid<T>(E, in, d, true);
   assemble(E, d, NULL);
 }
 
