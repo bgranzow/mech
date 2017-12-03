@@ -41,6 +41,19 @@ void add_to_jacobian(LinAlg* la, GID row, GIDs cols, FADT const& val) {
   CALL(MatSetValues(la->J, 1, r, sz, c, v, ADD_VALUES));
 }
 
+void diag_mat_row(LinAlg* la, GID row) {
+  PetscInt r[1] = { row };
+  CALL(MatZeroRows(la->J, 1, r, 1.0, PETSC_NULL, PETSC_NULL));
+}
+
+void zero_residual(LinAlg* la) {
+  CALL(VecSet(la->f, 0.0));
+}
+
+void zero_jacobian(LinAlg* la) {
+  CALL(MatZeroEntries(la->J));
+}
+
 void synchronize(LinAlg* la) {
   CALL(VecAssemblyBegin(la->f));
   CALL(VecAssemblyEnd(la->f));

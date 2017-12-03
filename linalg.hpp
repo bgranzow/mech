@@ -17,6 +17,8 @@ struct LinAlg {
 
 void add_to_jacobian(LinAlg* la, GID row, GIDs cols, FADT const& resid);
 void add_to_residual(LinAlg* la, GID row, double val);
+void zero_residual(LinAlg* la);
+void zero_jacobian(LinAlg* la);
 void synchronize(LinAlg* la);
 
 }

@@ -39,6 +39,7 @@ presidual.cpp
 mechanics.cpp
 linalg.cpp
 assembly.cpp
+dbcs.cpp
 primal.cpp
 )
 
