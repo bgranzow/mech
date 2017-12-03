@@ -1,10 +1,12 @@
+#include "linalg.hpp"
 #include "pressure.hpp"
 
 namespace mech {
 
-Pressure<ST>::Pressure(Disc* d, int) {
+Pressure<ST>::Pressure(Disc* d, int m) {
   disc = d;
   dim = disc->dim;
+  mode = m;
   elem = 0;
   residual.resize(disc->num_p_elem_nodes);
   this->name = "p";
@@ -48,13 +50,28 @@ void Pressure<ST>::at_point(apf::Vector3 const& p, double, double) {
   }
 }
 
-void Pressure<ST>::scatter(LinAlg*) {
+void Pressure<ST>::scatter_none() {
+}
+
+void Pressure<ST>::scatter_primal(LinAlg* la) {
+  auto ent = apf::getMeshEntity(elem);
+  for (int n = 0; n < disc->num_p_elem_nodes; ++n) {
+    GID row = get_p_gid(disc, ent, n);
+    add_to_residual(la, row, resid(n));
+  }
+}
+
+void Pressure<ST>::scatter(LinAlg* la) {
+  if (mode == NONE) scatter_none();
+  else if (mode == PRIMAL) scatter_primal(la);
+  else fail("unknown mode: %d", mode);
   elem = 0;
 }
 
-Pressure<FADT>::Pressure(Disc* d, int) {
+Pressure<FADT>::Pressure(Disc* d, int m) {
   disc = d;
   dim = disc->dim;
+  mode = m;
   elem = 0;
   gradient.resize(dim);
   node_fadt.resize(disc->num_p_elem_nodes);
@@ -104,7 +121,30 @@ void Pressure<FADT>::at_point(apf::Vector3 const& p, double, double) {
   }
 }
 
-void Pressure<FADT>::scatter(LinAlg*) {
+void Pressure<FADT>::scatter_none() {
+}
+
+void Pressure<FADT>::scatter_primal(LinAlg* la) {
+  auto ent = apf::getMeshEntity(elem);
+  GIDs cols;
+  get_gids(disc, ent, cols);
+  for (int n = 0; n < disc->num_p_elem_nodes; ++n) {
+    auto v = resid(n);
+    GID row = get_p_gid(disc, ent, n);
+    add_to_residual(la, row, v.val());
+    add_to_jacobian(la, row, cols, v);
+  }
+}
+
+void Pressure<FADT>::scatter_adjoint(LinAlg* la) {
+  (void)la;
+}
+
+void Pressure<FADT>::scatter(LinAlg* la) {
+  if (mode == NONE) scatter_none();
+  else if (mode == PRIMAL) scatter_primal(la);
+  else if (mode == ADJOINT) scatter_adjoint(la);
+  else fail("unknown mode: %d", mode);
   elem = 0;
 }
 

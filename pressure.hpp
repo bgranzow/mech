@@ -17,8 +17,11 @@ struct Pressure<ST> : public Integrator {
   ST& resid(int n);
   void gather(apf::MeshElement* me);
   void at_point(Vector const& p, double, double);
+  void scatter_none();
+  void scatter_primal(LinAlg* la);
   void scatter(LinAlg* la);
   int dim;
+  int mode;
   Disc* disc;
   apf::MeshElement* elem;
   apf::NewArray<ST> BF;
@@ -38,8 +41,12 @@ struct Pressure<FADT> : public Integrator {
   FADT& resid(int n);
   void gather(apf::MeshElement* me);
   void at_point(Vector const& p, double, double);
+  void scatter_none();
+  void scatter_primal(LinAlg* la);
+  void scatter_adjoint(LinAlg* la);
   void scatter(LinAlg* la);
   int dim;
+  int mode;
   Disc* disc;
   apf::MeshElement* elem;
   apf::NewArray<ST> BF;

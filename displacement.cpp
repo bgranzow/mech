@@ -1,10 +1,12 @@
 #include "displacement.hpp"
+#include "linalg.hpp"
 
 namespace mech {
 
-Displacement<ST>::Displacement(Disc* d, int) {
+Displacement<ST>::Displacement(Disc* d, int m) {
   disc = d;
   dim = disc->dim;
+  mode = m;
   elem = 0;
   residual.resize(dim * disc->num_u_elem_nodes);
   this->name = "u";
@@ -50,13 +52,29 @@ void Displacement<ST>::at_point(apf::Vector3 const& p, double, double) {
   }
 }
 
-void Displacement<ST>::scatter(LinAlg*) {
+void Displacement<ST>::scatter_none() {
+}
+
+void Displacement<ST>::scatter_primal(LinAlg* la) {
+  auto ent = apf::getMeshEntity(elem);
+  for (int n = 0; n < disc->num_u_elem_nodes; ++n)
+  for (int i = 0; i < dim; ++i) {
+    GID row = get_u_gid(disc, ent, n, i);
+    add_to_residual(la, row, resid(n, i));
+  }
+}
+
+void Displacement<ST>::scatter(LinAlg* la) {
+  if (mode == NONE) scatter_none();
+  else if (mode == PRIMAL) scatter_primal(la);
+  else fail("unknown mode: %d", mode);
   elem = 0;
 }
 
-Displacement<FADT>::Displacement(Disc* d, int) {
+Displacement<FADT>::Displacement(Disc* d, int m) {
   disc = d;
   dim = disc->dim;
+  mode = m;
   elem = 0;
   value.resize(dim);
   gradient.resize(dim * dim);
@@ -111,7 +129,32 @@ void Displacement<FADT>::at_point(apf::Vector3 const& p, double, double) {
   }
 }
 
-void Displacement<FADT>::scatter(LinAlg*) {
+void Displacement<FADT>::scatter_none() {
+}
+
+void Displacement<FADT>::scatter_primal(LinAlg* la) {
+  auto ent = apf::getMeshEntity(elem);
+  GIDs cols;
+  get_gids(disc, ent, cols);
+  for (int n = 0; n < disc->num_u_elem_nodes; ++n) {
+    for (int i = 0; i < dim; ++i) {
+      auto v = resid(n, i);
+      GID row = get_u_gid(disc, ent, n, i); 
+      add_to_residual(la, row, v.val());
+      add_to_jacobian(la, row, cols, v);
+    }
+  }
+}
+
+void Displacement<FADT>::scatter_adjoint(LinAlg* la) {
+  (void)la;
+}
+
+void Displacement<FADT>::scatter(LinAlg* la) {
+  if (mode == NONE) scatter_none();
+  else if (mode == PRIMAL) scatter_primal(la);
+  else if (mode == ADJOINT) scatter_adjoint(la);
+  else fail("unkown mode: %d", mode);
   elem = 0;
 }
 
