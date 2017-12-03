@@ -21,7 +21,6 @@ void set_resid_dbcs(Input* in, Disc* d, LinAlg* la, double t) {
     auto& dbc = in->dbcs[i];
     auto set = dbc.set;
     auto idx = dbc.eq;
-    assert(d->u_node_sets.count(set));
     auto nodes = d->u_node_sets[set];
     for (size_t node = 0; node < nodes.size(); ++node) {
       auto n = nodes[node];
@@ -38,11 +37,11 @@ void set_resid_dbcs(Input* in, Disc* d, LinAlg* la, double t) {
 void set_jacob_dbcs(Input* in, Disc* d, LinAlg* la, double t) {
   Vector x(0,0,0);
   Vector disp(0,0,0);
+  GIDs rows;
   for (size_t i = 0; i < in->dbcs.size(); ++i) {
     auto& dbc = in->dbcs[i];
     auto set = dbc.set;
     auto idx = dbc.eq;
-    assert(d->u_node_sets.count(set));
     auto nodes = d->u_node_sets[set];
     for (size_t node = 0; node < nodes.size(); ++node) {
       auto n = nodes[node];
@@ -51,10 +50,11 @@ void set_jacob_dbcs(Input* in, Disc* d, LinAlg* la, double t) {
       double sol = disp[idx];
       double v = dbc.val(x, t);
       GID row = get_u_gid(d, n, idx);
+      rows.push_back(row);
       set_to_residual(la, row, sol - v);
-      diag_jacobian_row(la, row);
     }
   }
+  diag_jacobian_rows(la, rows);
 }
 
 }
