@@ -37,7 +37,9 @@ first_pk.cpp
 mresidual.cpp
 presidual.cpp
 mechanics.cpp
+linalg.cpp
 assembly.cpp
+primal.cpp
 )
 
 set(HEADERS
@@ -53,6 +55,7 @@ first_pk.hpp
 mresidual.hpp
 presidual.hpp
 mechanics.hpp
+linalg.hpp
 )
 
 add_library(mech ${SOURCES})
@@ -95,6 +98,7 @@ endfunction()
 
 add_exe(ex1 ex1.cpp)
 add_exe(ex2 ex2.cpp)
+add_exe(ex3 ex3.cpp)
 
 set(square_mdl "../mesh/square/square.dmg")
 set(square_assoc "../mesh/square/square.txt")

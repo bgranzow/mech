@@ -13,7 +13,7 @@ LinAlg::LinAlg(Disc* d) {
   CALL(VecCreateMPI(PETSC_COMM_WORLD, n, N, &q));
   CALL(MatCreateAIJ(PETSC_COMM_WORLD, n, n, N, N,
         500, PETSC_NULL, 500, PETSC_NULL, &J));
-  CALL(MatSetOption(J, MAT_NEWNONZERO_ALLOCATION_ERR, PETSC_FALSE));
+  CALL(MatSetOption(J, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE));
 }
 
 LinAlg::~LinAlg() {
@@ -21,6 +21,33 @@ LinAlg::~LinAlg() {
   CALL(VecDestroy(&f));
   CALL(VecDestroy(&dx));
   CALL(VecDestroy(&q));
+}
+
+void add_to_residual(LinAlg* la, GID row, double val) {
+  PetscInt r[1] = { row };
+  PetscScalar v[1] = { val };
+  CALL(VecSetValues(la->f, 1, r, v, ADD_VALUES));
+}
+
+void add_to_jacobian(LinAlg* la, GID row, GIDs cols, FADT const& val) {
+  int sz = cols.size();
+  PetscInt r[1] = { row };
+  PetscInt c[sz];
+  PetscScalar v[sz];
+  for (int i = 0; i < sz; ++i) {
+    c[i] = cols[i]; 
+    v[i] = val.fastAccessDx(i);
+  }
+  CALL(MatSetValues(la->J, 1, r, sz, c, v, ADD_VALUES));
+}
+
+void synchronize(LinAlg* la) {
+  CALL(VecAssemblyBegin(la->f));
+  CALL(VecAssemblyEnd(la->f));
+  CALL(VecAssemblyBegin(la->q));
+  CALL(VecAssemblyEnd(la->q));
+  CALL(MatAssemblyBegin(la->J, MAT_FINAL_ASSEMBLY));
+  CALL(MatAssemblyEnd(la->J, MAT_FINAL_ASSEMBLY));
 }
 
 }
