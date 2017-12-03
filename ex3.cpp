@@ -23,6 +23,14 @@ static void setup(Input* in, char** argv) {
   in->dbcs = { dbc1, dbc2, dbc3 };
 }
 
+static void output(Disc* d) {
+  auto u = apf::createFieldOn(d->mesh, "u1", apf::VECTOR);
+  apf::projectField(u, d->u);
+  std::vector<std::string> names = { "u1", "p1", "first_pk" };
+  apf::writeVtkFiles("out_ex3", d->mesh, names);
+  apf::destroyField(u);
+}
+
 static void run(char** argv) {
   Input in;
   Disc disc;
@@ -30,6 +38,7 @@ static void run(char** argv) {
   init_disc(&disc, &in);
   build_disc_data(&disc);
   solve_linear_primal(&in, &disc, 0.0);
+  output(&disc);
   free_disc_data(&disc);
   free_disc(&disc);
 }
