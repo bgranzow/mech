@@ -11,8 +11,10 @@ LinAlg::LinAlg(Disc* d) {
   CALL(VecCreateMPI(PETSC_COMM_WORLD, n, N, &f));
   CALL(VecCreateMPI(PETSC_COMM_WORLD, n, N, &dx));
   CALL(VecCreateMPI(PETSC_COMM_WORLD, n, N, &q));
-  CALL(MatCreateAIJ(PETSC_COMM_WORLD, n, n, N, N,
-        500, PETSC_NULL, 500, PETSC_NULL, &J));
+  CALL(MatCreate(PETSC_COMM_WORLD, &J));
+  CALL(MatSetType(J, MATMPIAIJ));
+  CALL(MatSetSizes(J, n, n, N, N));
+  CALL(MatSetUp(J));
   CALL(MatSetOption(J, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE));
 }
 
@@ -35,7 +37,7 @@ void set_to_residual(LinAlg* la, GID row, double val) {
   CALL(VecSetValues(la->f, 1, r, v, INSERT_VALUES));
 }
 
-void add_to_jacobian(LinAlg* la, GID row, GIDs cols, FADT const& val) {
+void add_to_jacobian(LinAlg* la, GID row, GIDs const& cols, FADT const& val) {
   int sz = cols.size();
   PetscInt r[1] = { row };
   PetscInt c[sz];
@@ -47,9 +49,12 @@ void add_to_jacobian(LinAlg* la, GID row, GIDs cols, FADT const& val) {
   CALL(MatSetValues(la->J, 1, r, sz, c, v, ADD_VALUES));
 }
 
-void diag_jacobian_row(LinAlg* la, GID row) {
-  PetscInt r[1] = { row };
-  CALL(MatZeroRows(la->J, 1, r, 1.0, PETSC_NULL, PETSC_NULL));
+void diag_jacobian_rows(LinAlg* la, GIDs const& rows) {
+  PetscInt sz = rows.size();
+  PetscInt rs[sz];
+  for (int i = 0; i < sz; ++i)
+    rs[i] = rows[i];
+  CALL(MatZeroRows(la->J, sz, rs, 1.0, PETSC_NULL, PETSC_NULL));
 }
 
 void zero_residual(LinAlg* la) {
@@ -65,8 +70,64 @@ void synchronize(LinAlg* la) {
   CALL(VecAssemblyEnd(la->f));
   CALL(VecAssemblyBegin(la->q));
   CALL(VecAssemblyEnd(la->q));
+  CALL(MatAssemblyBegin(la->J, MAT_FLUSH_ASSEMBLY));
+  CALL(MatAssemblyEnd(la->J, MAT_FLUSH_ASSEMBLY));
+}
+
+void finalize(LinAlg* la) {
+  CALL(VecAssemblyBegin(la->f));
+  CALL(VecAssemblyEnd(la->f));
+  CALL(VecAssemblyBegin(la->q));
+  CALL(VecAssemblyEnd(la->q));
   CALL(MatAssemblyBegin(la->J, MAT_FINAL_ASSEMBLY));
   CALL(MatAssemblyEnd(la->J, MAT_FINAL_ASSEMBLY));
+}
+
+void solve(LinAlg* la) {
+  double t0 = time();
+  KSP ksp;
+  CALL(KSPCreate(PETSC_COMM_WORLD, &ksp));
+  CALL(KSPSetTolerances(ksp, 1.0e-10, 1.0e-10,
+        PETSC_DEFAULT, 2000));
+  CALL(KSPSetOperators(ksp, la->J, la->J));
+  CALL(KSPSetFromOptions(ksp));
+  CALL(KSPSolve(ksp, la->f, la->dx));
+  double t1 = time();
+  print(" > linear system solved in %f seconds", t1-t0);
+}
+
+void set_primal_to_disc(LinAlg* la, Disc* d) {
+  PetscInt r[1];
+  PetscScalar v[1];
+
+  // attach u
+  apf::Vector3 u(0,0,0);
+  apf::DynamicArray<apf::Node> u_nodes;
+  apf::getNodes(d->u_nmbr, u_nodes);
+  for (size_t node = 0; node < u_nodes.size(); ++node) {
+    auto n = u_nodes[node];
+    if (! d->mesh->isOwned(n.entity)) continue;
+    for (int i = 0; i < d->dim; ++i) {
+      r[0] = get_u_gid(d, n, i);
+      CALL(VecGetValues(la->dx, 1, r, v));
+      u[i] = v[0];
+    }
+    apf::setVector(d->u, n.entity, n.node, u);
+  }
+  apf::synchronize(d->u);
+
+  // attach p
+  apf::DynamicArray<apf::Node> p_nodes;
+  apf::getNodes(d->p_nmbr, p_nodes);
+  for (size_t node = 0; node < p_nodes.size(); ++node) {
+    auto n = u_nodes[node];
+    if (! d->mesh->isOwned(n.entity)) continue;
+    r[0] = get_p_gid(d, n);
+    CALL(VecGetValues(la->dx, 1, r, v));
+    apf::setScalar(d->p, n.entity, n.node, v[0]);
+  }
+  apf::synchronize(d->p);
+
 }
 
 }
