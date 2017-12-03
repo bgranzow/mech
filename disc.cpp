@@ -173,6 +173,11 @@ GID get_u_gid(Disc* d, apf::Node const& n, int i) {
   return nmbr * d->dim + i;
 }
 
+GID get_p_gid(Disc* d, apf::Node const& n) {
+  GID nmbr = apf::getNumber(d->p_nmbr, n);
+  return d->p_dof_offset + nmbr;
+}
+
 void get_gids(Disc* d, apf::MeshEntity* e, GIDs& ids) {
   apf::NewArray<long> u_node_ids;
   apf::NewArray<long> p_node_ids;
