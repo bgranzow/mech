@@ -156,16 +156,21 @@ void free_disc_data(Disc* d) {
   free_numbers(d);
 }
 
-long get_u_gid(Disc* d, apf::MeshEntity* e, int n, int i) {
-  apf::NewArray<long> node_ids;
+GID get_u_gid(Disc* d, apf::MeshEntity* e, int n, int i) {
+  apf::NewArray<GID> node_ids;
   apf::getElementNumbers(d->u_nmbr, e, node_ids);
   return node_ids[n] * d->dim + i;
 }
 
-long get_p_gid(Disc* d, apf::MeshEntity* e, int n) {
-  apf::NewArray<long> node_ids;
+GID get_p_gid(Disc* d, apf::MeshEntity* e, int n) {
+  apf::NewArray<GID> node_ids;
   apf::getElementNumbers(d->p_nmbr, e, node_ids);
   return d->p_dof_offset + node_ids[n];
+}
+
+GID get_u_gid(Disc* d, apf::Node const& n, int i) {
+  GID nmbr = apf::getNumber(d->u_nmbr, n);
+  return nmbr * d->dim + i;
 }
 
 void get_gids(Disc* d, apf::MeshEntity* e, GIDs& ids) {

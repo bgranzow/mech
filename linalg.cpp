@@ -29,6 +29,12 @@ void add_to_residual(LinAlg* la, GID row, double val) {
   CALL(VecSetValues(la->f, 1, r, v, ADD_VALUES));
 }
 
+void set_to_residual(LinAlg* la, GID row, double val) {
+  PetscInt r[1] = { row };
+  PetscScalar v[1] { val };
+  CALL(VecSetValues(la->f, 1, r, v, INSERT_VALUES));
+}
+
 void add_to_jacobian(LinAlg* la, GID row, GIDs cols, FADT const& val) {
   int sz = cols.size();
   PetscInt r[1] = { row };
@@ -41,7 +47,7 @@ void add_to_jacobian(LinAlg* la, GID row, GIDs cols, FADT const& val) {
   CALL(MatSetValues(la->J, 1, r, sz, c, v, ADD_VALUES));
 }
 
-void diag_mat_row(LinAlg* la, GID row) {
+void diag_jacobian_row(LinAlg* la, GID row) {
   PetscInt r[1] = { row };
   CALL(MatZeroRows(la->J, 1, r, 1.0, PETSC_NULL, PETSC_NULL));
 }

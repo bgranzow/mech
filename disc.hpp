@@ -45,6 +45,7 @@ void free_disc_data(Disc* d);
 
 GID get_u_gid(Disc* d, apf::MeshEntity* e, int n, int i);
 GID get_p_gid(Disc* d, apf::MeshEntity* e, int n);
+GID get_u_gid(Disc* d, apf::Node const& n, int i);
 void get_gids(Disc* d, apf::MeshEntity* e, GIDs& ids);
 
 }

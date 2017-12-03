@@ -16,9 +16,9 @@ void build_resid(Evaluators&E, Input* in, Disc* d, bool save);
 
 void solve_linear_primal(Input* in, Disc* d, double t);
 
-void set_resid_dbcs(Input* in, LinAlg* la);
+void set_resid_dbcs(Input* in, Disc* d, LinAlg* la, double t);
 
-void set_jacob_dbcs(Input* in, LinAlg* la);
+void set_jacob_dbcs(Input* in, Disc* d, LinAlg* la, double t);
 
 }
 

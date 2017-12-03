@@ -18,7 +18,7 @@ static void setup(Input* in, char** argv) {
   Material mat1 = { 1000, .25, 100, 10 };
   in->mats["body"] = mat1;
   DBC dbc1 = { 0, zero, "xmin" };
-  DBC dbc2 = { 0, zero, "ymin" };
+  DBC dbc2 = { 1, zero, "ymin" };
   DBC dbc3 = { 0, tenth, "xmax" };
   in->dbcs = { dbc1, dbc2, dbc3 };
 }
