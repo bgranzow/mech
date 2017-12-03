@@ -1,0 +1,29 @@
+<VTKFile type="UnstructuredGrid" byte_order="LittleEndian" header_type="UInt32">
+<UnstructuredGrid>
+<Piece NumberOfPoints="5" NumberOfCells="4">
+<Points>
+<DataArray type="Float64" Name="coordinates" NumberOfComponents="3" format="binary">
+eAAAAA==AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8D8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwPwAAAAAAAAAAAAAAAAAA8D8AAAAAAADwPwAAAAAAAAAAAAAAAAAA4D8AAAAAAADgPwAAAAAAAAAA
+</DataArray>
+</Points>
+<Cells>
+<DataArray type="Int32" Name="connectivity" format="binary">
+MAAAAA==AAAAAAEAAAAEAAAAAAAAAAQAAAACAAAAAQAAAAMAAAAEAAAAAgAAAAQAAAADAAAA
+</DataArray>
+<DataArray type="Int32" Name="offsets" format="binary">
+EAAAAA==AwAAAAYAAAAJAAAADAAAAA==
+</DataArray>
+<DataArray type="UInt8" Name="types" format="binary">
+BAAAAA==BQUFBQ==
+</DataArray>
+</Cells>
+<PointData>
+</PointData>
+<CellData>
+<DataArray type="Int32" Name="apf_part" NumberOfComponents="1" format="binary">
+EAAAAA==AAAAAAAAAAAAAAAAAAAAAA==
+</DataArray>
+</CellData>
+</Piece>
+</UnstructuredGrid>
+</VTKFile>
