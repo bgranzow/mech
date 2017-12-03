@@ -8,7 +8,7 @@
 namespace mech {
 
 template <typename T>
-void build_resid(Evaluators& E, Disc* d, Input* in, bool save) {
+void build_resid(Evaluators& E, Input* in, Disc* d, bool save) {
   auto u = find_evaluator(E, "u");
   auto p = find_evaluator(E, "p");
   auto kin = rcp(new Kinematics<T>(u));
@@ -27,7 +27,7 @@ void build_resid(Evaluators& E, Disc* d, Input* in, bool save) {
   E.push_back(presid);
 }
 
-template void build_resid<ST>(Evaluators& E, Disc* d, Input* in, bool save);
-template void build_resid<FADT>(Evaluators& E, Disc* d, Input* in, bool save);
+template void build_resid<ST>(Evaluators& E, Input* in, Disc* d, bool save);
+template void build_resid<FADT>(Evaluators& E, Input* in, Disc* d, bool save);
 
 }
