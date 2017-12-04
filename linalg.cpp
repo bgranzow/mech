@@ -1,6 +1,8 @@
 #include "disc.hpp"
 #include "linalg.hpp"
 
+#include <PCU.h>
+
 #define CALL(function) assert(0 == (function))
 
 namespace mech {
@@ -87,6 +89,7 @@ void solve(LinAlg* la) {
   double t0 = time();
   KSP ksp;
   PC pc;
+  CALL(VecScale(la->f, -1.0));
   CALL(KSPCreate(PETSC_COMM_WORLD, &ksp));
   CALL(KSPSetTolerances(ksp, 1.0e-10, 1.0e-10,
         PETSC_DEFAULT, 2000));
@@ -99,34 +102,37 @@ void solve(LinAlg* la) {
   print(" > linear system solved in %f seconds", t1-t0);
 }
 
-void set_primal_to_disc(LinAlg* la, Disc* d) {
-  PetscInt r[1];
-  PetscScalar v[1];
-  apf::Vector3 u(0,0,0);
+void add_to_primal(LinAlg* la, Disc* d) {
+  PetscScalar* dx;
+  CALL(VecGetArray(la->dx, &dx));
+  int row = 0;
+  Vector u(0,0,0);
+  Vector du(0,0,0);
   apf::DynamicArray<apf::Node> u_nodes;
+  apf::DynamicArray<apf::Node> p_nodes;
   apf::getNodes(d->u_nmbr, u_nodes);
-  for (size_t node = 0; node < u_nodes.size(); ++node) {
-    auto n = u_nodes[node];
-    if (! d->mesh->isOwned(n.entity)) continue;
-    for (int i = 0; i < d->dim; ++i) {
-      r[0] = get_u_gid(d, n, i);
-      CALL(VecGetValues(la->dx, 1, r, v));
-      u[i] = v[0];
-    }
-    apf::setVector(d->u, n.entity, n.node, u);
+  apf::getNodes(d->p_nmbr, p_nodes);
+  for (size_t n = 0; n < u_nodes.size(); ++n) {
+    auto node = u_nodes[n];
+    auto ent = node.entity;
+    auto lnode = node.node;
+    if (! d->mesh->isOwned(node.entity)) continue;
+    for (int i = 0; i < d->dim; ++i)
+      du[i] = dx[row++];
+    apf::getVector(d->u, ent, lnode, u);
+    apf::setVector(d->u, ent, lnode, u + du);
+  }
+  for (size_t n = 0; n < p_nodes.size(); ++n) {
+    auto node = p_nodes[n];
+    auto ent = node.entity;
+    auto lnode = node.node;
+    if (! d->mesh->isOwned(ent)) continue;
+    auto dp = dx[row++];
+    auto p = apf::getScalar(d->p, ent, lnode);
+    apf::setScalar(d->p, ent, lnode, p + dp);
   }
   apf::synchronize(d->u);
-  apf::DynamicArray<apf::Node> p_nodes;
-  apf::getNodes(d->p_nmbr, p_nodes);
-  for (size_t node = 0; node < p_nodes.size(); ++node) {
-    auto n = u_nodes[node];
-    if (! d->mesh->isOwned(n.entity)) continue;
-    r[0] = get_p_gid(d, n);
-    CALL(VecGetValues(la->dx, 1, r, v));
-    apf::setScalar(d->p, n.entity, n.node, v[0]);
-  }
   apf::synchronize(d->p);
-
 }
 
 }

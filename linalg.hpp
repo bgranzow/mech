@@ -24,7 +24,7 @@ void zero_jacobian(LinAlg* la);
 void synchronize(LinAlg* la);
 void finalize(LinAlg* la);
 void solve(LinAlg* la);
-void set_primal_to_disc(LinAlg* la, Disc* d);
+void add_to_primal(LinAlg* la, Disc* d);
 
 }
 
