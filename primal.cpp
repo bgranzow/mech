@@ -72,7 +72,7 @@ void solve_linear_primal(Input* in, Disc* d, double t) {
   construct_primal(&primal, t);
   compute_jacobian(&primal, t);
   solve(&(primal.la));
-  set_primal_to_disc(&(primal.la), d);
+  add_to_primal(&(primal.la), d);
 //  compute_residual(&primal, t);
 }
 
