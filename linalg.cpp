@@ -26,20 +26,20 @@ LinAlg::~LinAlg() {
 }
 
 void add_to_residual(LinAlg* la, GID row, double val) {
-  PetscInt r[1] = { row };
+  PetscInt r[1] = { PetscInt(row) };
   PetscScalar v[1] = { val };
   CALL(VecSetValues(la->f, 1, r, v, ADD_VALUES));
 }
 
 void set_to_residual(LinAlg* la, GID row, double val) {
-  PetscInt r[1] = { row };
+  PetscInt r[1] = { PetscInt(row) };
   PetscScalar v[1] { val };
   CALL(VecSetValues(la->f, 1, r, v, INSERT_VALUES));
 }
 
 void add_to_jacobian(LinAlg* la, GID row, GIDs const& cols, FADT const& val) {
   int sz = cols.size();
-  PetscInt r[1] = { row };
+  PetscInt r[1] = { PetscInt(row) };
   PetscInt c[sz];
   PetscScalar v[sz];
   for (int i = 0; i < sz; ++i) {
@@ -86,11 +86,14 @@ void finalize(LinAlg* la) {
 void solve(LinAlg* la) {
   double t0 = time();
   KSP ksp;
+  PC pc;
   CALL(KSPCreate(PETSC_COMM_WORLD, &ksp));
   CALL(KSPSetTolerances(ksp, 1.0e-10, 1.0e-10,
         PETSC_DEFAULT, 2000));
   CALL(KSPSetOperators(ksp, la->J, la->J));
   CALL(KSPSetFromOptions(ksp));
+  CALL(KSPGetPC(ksp, &pc));
+  CALL(PCSetType(pc, PCLU));
   CALL(KSPSolve(ksp, la->f, la->dx));
   double t1 = time();
   print(" > linear system solved in %f seconds", t1-t0);
@@ -99,8 +102,6 @@ void solve(LinAlg* la) {
 void set_primal_to_disc(LinAlg* la, Disc* d) {
   PetscInt r[1];
   PetscScalar v[1];
-
-  // attach u
   apf::Vector3 u(0,0,0);
   apf::DynamicArray<apf::Node> u_nodes;
   apf::getNodes(d->u_nmbr, u_nodes);
@@ -115,8 +116,6 @@ void set_primal_to_disc(LinAlg* la, Disc* d) {
     apf::setVector(d->u, n.entity, n.node, u);
   }
   apf::synchronize(d->u);
-
-  // attach p
   apf::DynamicArray<apf::Node> p_nodes;
   apf::getNodes(d->p_nmbr, p_nodes);
   for (size_t node = 0; node < p_nodes.size(); ++node) {
