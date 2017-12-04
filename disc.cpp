@@ -15,7 +15,6 @@ static void zero_all(Disc* d) {
   d->num_elem_dofs = 0;
   d->num_owned_dofs = 0;
   d->num_total_dofs = 0;
-  d->p_dof_offset = 0;
   d->mesh = 0;
   d->sets = 0;
   d->u_basis = 0;
@@ -34,6 +33,7 @@ static void zero_all(Disc* d) {
 static void load_mesh(Disc* d, Input* in) {
   gmi_register_mesh();
   d->mesh = apf::loadMdsMesh(in->geom_file.c_str(), in->mesh_file.c_str());
+  apf::reorderMdsMesh(d->mesh);
   d->sets = apf::create_sets(d->mesh, in->assoc_file.c_str());
   d->dim = d->mesh->getDimension();
   d->elem_type = apf::getFirstType(d->mesh, d->dim);
@@ -103,18 +103,51 @@ void free_disc(Disc* d) {
   zero_all(d);
 }
 
+static void number_owned(apf::GlobalNumbering* nmbr,
+    apf::FieldShape* basis, int comps, long& i) {
+  apf::MeshEntity* ent;
+  auto m = apf::getMesh(nmbr);
+  for (int dim = 0; dim < 4; ++dim) {
+    if (! basis->hasNodesIn(dim)) continue;
+    auto it = m->begin(dim);
+    while ((ent = m->iterate(it))) {
+      if (! m->isOwned(ent)) continue;
+      auto type = m->getType(ent);
+      int nnodes = basis->countNodesOn(type);
+      for (int n = 0; n < nnodes; ++n) {
+        apf::number(nmbr, ent, n, i);
+        i += comps;
+      }
+    }
+    m->end(it);
+  }
+}
+
+static void offset_nmbr(apf::GlobalNumbering* nmbr, long offset) {
+  apf::DynamicArray<apf::Node> nodes;
+  apf::getNodes(nmbr, nodes);
+  for (size_t n = 0; n < nodes.size(); ++n) {
+    auto node = nodes[n];
+    auto ent = node.entity;
+    auto lnode = node.node;
+    auto old = apf::getNumber(nmbr, ent, lnode);
+    apf::number(nmbr, ent, lnode, old + offset);
+  }
+}
+
 static void init_numbers(Disc* d) {
-  auto un = apf::numberOwnedNodes(d->mesh, "un", d->u_basis);
-  auto pn = apf::numberOwnedNodes(d->mesh, "pn", d->p_basis);
-  auto num_owned_u_nodes = apf::countNodes(un);
-  auto num_owned_p_nodes = apf::countNodes(pn);
-  auto num_total_u_nodes = PCU_Add_Long(num_owned_u_nodes);
-  auto num_total_p_nodes = PCU_Add_Long(num_owned_p_nodes);
-  d->num_owned_dofs = num_owned_u_nodes*d->dim + num_owned_p_nodes;
-  d->num_total_dofs = num_total_u_nodes*d->dim + num_total_p_nodes;
-  d->p_dof_offset = num_total_u_nodes*d->dim;
-  d->u_nmbr = apf::makeGlobal(un);
-  d->p_nmbr = apf::makeGlobal(pn);
+  long i = 0;
+  d->u_nmbr = apf::createGlobalNumbering(d->mesh, "un", d->u_basis);
+  d->p_nmbr = apf::createGlobalNumbering(d->mesh, "pn", d->p_basis);
+  number_owned(d->u_nmbr, d->u_basis, d->dim, i);
+  number_owned(d->p_nmbr, d->p_basis, 1, i);
+  auto num_owned_u_dofs = apf::countNodes(d->u_nmbr) * d->dim;
+  auto num_owned_p_dofs = apf::countNodes(d->p_nmbr);
+  d->num_owned_dofs = num_owned_u_dofs + num_owned_p_dofs;
+  d->num_total_dofs = PCU_Add_Long(d->num_owned_dofs);
+  auto offset = PCU_Exscan_Long(d->num_owned_dofs);
+  offset_nmbr(d->u_nmbr, offset);
+  offset_nmbr(d->p_nmbr, offset);
   apf::synchronize(d->u_nmbr);
   apf::synchronize(d->p_nmbr);
 }
@@ -148,7 +181,6 @@ static void free_numbers(Disc* d) {
   d->p_nmbr = 0;
   d->num_owned_dofs = 0;
   d->num_total_dofs = 0;
-  d->p_dof_offset = 0;
 }
 
 void free_disc_data(Disc* d) {
@@ -159,23 +191,22 @@ void free_disc_data(Disc* d) {
 GID get_u_gid(Disc* d, apf::MeshEntity* e, int n, int i) {
   apf::NewArray<GID> node_ids;
   apf::getElementNumbers(d->u_nmbr, e, node_ids);
-  return node_ids[n] * d->dim + i;
+  return node_ids[n] + i;
 }
 
 GID get_p_gid(Disc* d, apf::MeshEntity* e, int n) {
   apf::NewArray<GID> node_ids;
   apf::getElementNumbers(d->p_nmbr, e, node_ids);
-  return d->p_dof_offset + node_ids[n];
+  return node_ids[n];
 }
 
 GID get_u_gid(Disc* d, apf::Node const& n, int i) {
   GID nmbr = apf::getNumber(d->u_nmbr, n);
-  return nmbr * d->dim + i;
+  return nmbr + i;
 }
 
 GID get_p_gid(Disc* d, apf::Node const& n) {
-  GID nmbr = apf::getNumber(d->p_nmbr, n);
-  return d->p_dof_offset + nmbr;
+  return apf::getNumber(d->p_nmbr, n);
 }
 
 void get_gids(Disc* d, apf::MeshEntity* e, GIDs& ids) {
@@ -187,9 +218,9 @@ void get_gids(Disc* d, apf::MeshEntity* e, GIDs& ids) {
   int eq = 0;
   for (int n = 0; n < d->num_u_elem_nodes; ++n)
   for (int i = 0; i < d->dim; ++i)
-    ids[eq++] = u_node_ids[n] * d->dim + i;
+    ids[eq++] = u_node_ids[n] + i;
   for (int n = 0; n < d->num_p_elem_nodes; ++n)
-    ids[eq++] = d->p_dof_offset + p_node_ids[n];
+    ids[eq++] = p_node_ids[n];
 }
 
 }

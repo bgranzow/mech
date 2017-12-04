@@ -11,7 +11,6 @@ static void test_disc(Disc* d) {
   print("num elem dofs: %d", d->num_elem_dofs);
   print("num owned dofs: %lu", d->num_owned_dofs);
   print("num total dofs: %lu", d->num_total_dofs);
-  print("p dof offset: %lu", d->p_dof_offset);
 }
 
 static void run(char** argv) {

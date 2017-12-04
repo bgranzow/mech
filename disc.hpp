@@ -15,9 +15,8 @@ struct Disc {
   int num_elem_dofs;
   int q_degree;
   int num_ips;
-  int num_owned_dofs;
-  int num_total_dofs;
-  int p_dof_offset;
+  GID num_owned_dofs;
+  GID num_total_dofs;
   apf::Mesh2* mesh;
   apf::StkModels* sets;
   apf::FieldShape* u_basis;
