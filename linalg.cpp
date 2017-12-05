@@ -16,7 +16,7 @@ LinAlg::LinAlg(Disc* d) {
   CALL(MatCreate(PETSC_COMM_WORLD, &J));
   CALL(MatSetType(J, MATMPIAIJ));
   CALL(MatSetSizes(J, n, n, N, N));
-  CALL(MatSetUp(J));
+  CALL(MatMPIAIJSetPreallocation(J, 300, PETSC_NULL, 300, PETSC_NULL));
   CALL(MatSetOption(J, MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE));
 }
 
