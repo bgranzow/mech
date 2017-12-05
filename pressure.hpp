@@ -3,6 +3,7 @@
 
 #include "control.hpp"
 #include "disc.hpp"
+#include <functional>
 
 namespace mech {
 
@@ -10,18 +11,18 @@ template <typename T> struct Pressure;
 
 template <>
 struct Pressure<ST> : public Integrator {
-  Pressure(Disc* d, int mode);
+  Pressure(Disc* d, int m);
   ST& val();
   ST& grad(int i);
   ST& nodal(int n);
   ST& resid(int n);
   void gather(apf::MeshElement* me);
   void at_point(Vector const& p, double, double);
-  void scatter_none();
+  void scatter_none(LinAlg*);
   void scatter_primal(LinAlg* la);
   void scatter(LinAlg* la);
+  std::function<void(Pressure<ST>*, LinAlg*)> op;
   int dim;
-  int mode;
   Disc* disc;
   apf::MeshElement* elem;
   apf::NewArray<ST> BF;
@@ -34,19 +35,19 @@ struct Pressure<ST> : public Integrator {
 
 template <>
 struct Pressure<FADT> : public Integrator {
-  Pressure(Disc* d, int mode);
+  Pressure(Disc* d, int m);
   FADT& val();
   FADT& grad(int i);
   FADT& nodal(int n);
   FADT& resid(int n);
   void gather(apf::MeshElement* me);
   void at_point(Vector const& p, double, double);
-  void scatter_none();
+  void scatter_none(LinAlg*);
   void scatter_primal(LinAlg* la);
   void scatter_adjoint(LinAlg* la);
   void scatter(LinAlg* la);
+  std::function<void(Pressure<FADT>*, LinAlg*)> op;
   int dim;
-  int mode;
   Disc* disc;
   apf::MeshElement* elem;
   apf::NewArray<ST> BF;

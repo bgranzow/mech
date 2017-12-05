@@ -3,6 +3,7 @@
 
 #include "control.hpp"
 #include "disc.hpp"
+#include <functional>
 
 namespace mech {
 
@@ -10,18 +11,18 @@ template <typename T> struct Displacement;
 
 template <>
 struct Displacement<ST> : public Integrator {
-  Displacement(Disc* d, int mode);
+  Displacement(Disc* d, int m);
   ST& val(int i);
   ST& grad(int i, int j);
   ST& nodal(int n, int i);
   ST& resid(int n, int i);
   void gather(apf::MeshElement* me);
   void at_point(Vector const& p, double, double);
-  void scatter_none();
+  void scatter_none(LinAlg* la);
   void scatter_primal(LinAlg* la);
   void scatter(LinAlg* la);
+  std::function<void(Displacement<ST>*, LinAlg*)> op;
   int dim;
-  int mode;
   Disc* disc;
   apf::MeshElement* elem;
   apf::NewArray<ST> BF;
@@ -34,19 +35,19 @@ struct Displacement<ST> : public Integrator {
 
 template <>
 struct Displacement<FADT> : public Integrator {
-  Displacement(Disc* d, int mode);
+  Displacement(Disc* d, int m);
   FADT& val(int i);
   FADT& grad(int i, int j);
   FADT& nodal(int n, int i);
   FADT& resid(int n, int i);
   void gather(apf::MeshElement* me);
   void at_point(Vector const& p, double, double);
-  void scatter_none();
+  void scatter_none(LinAlg* la);
   void scatter_primal(LinAlg* la);
   void scatter_adjoint(LinAlg* la);
   void scatter(LinAlg* la);
+  std::function<void(Displacement<FADT>*, LinAlg*)> op;
   int dim;
-  int mode;
   Disc* disc;
   apf::MeshElement* elem;
   apf::NewArray<ST> BF;

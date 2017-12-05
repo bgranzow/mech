@@ -6,9 +6,11 @@ namespace mech {
 Pressure<ST>::Pressure(Disc* d, int m) {
   disc = d;
   dim = disc->dim;
-  mode = m;
   elem = 0;
   residual.resize(disc->num_p_elem_nodes);
+  if (m == PRIMAL) op = &Pressure<ST>::scatter_primal;
+  else if (m == NONE) op = &Pressure<ST>::scatter_none;
+  else fail("pressure: invalid mode: %d", m);
   this->name = "p";
 }
 
@@ -50,7 +52,7 @@ void Pressure<ST>::at_point(apf::Vector3 const& p, double, double) {
   }
 }
 
-void Pressure<ST>::scatter_none() {
+void Pressure<ST>::scatter_none(LinAlg*) {
 }
 
 void Pressure<ST>::scatter_primal(LinAlg* la) {
@@ -62,20 +64,21 @@ void Pressure<ST>::scatter_primal(LinAlg* la) {
 }
 
 void Pressure<ST>::scatter(LinAlg* la) {
-  if (mode == NONE) scatter_none();
-  else if (mode == PRIMAL) scatter_primal(la);
-  else fail("unknown mode: %d", mode);
+  op(this, la);
   elem = 0;
 }
 
 Pressure<FADT>::Pressure(Disc* d, int m) {
   disc = d;
   dim = disc->dim;
-  mode = m;
   elem = 0;
   gradient.resize(dim);
   node_fadt.resize(disc->num_p_elem_nodes);
   residual.resize(disc->num_p_elem_nodes);
+  if (m == PRIMAL) op = &Pressure<FADT>::scatter_primal;
+  else if (m == ADJOINT) op = &Pressure<FADT>::scatter_adjoint;
+  else if (m == NONE) op = &Pressure<FADT>::scatter_none;
+  else fail("pressure: invalid mode: %d", m);
   this->name = "p";
 }
 
@@ -121,7 +124,7 @@ void Pressure<FADT>::at_point(apf::Vector3 const& p, double, double) {
   }
 }
 
-void Pressure<FADT>::scatter_none() {
+void Pressure<FADT>::scatter_none(LinAlg*) {
 }
 
 void Pressure<FADT>::scatter_primal(LinAlg* la) {
@@ -141,10 +144,7 @@ void Pressure<FADT>::scatter_adjoint(LinAlg* la) {
 }
 
 void Pressure<FADT>::scatter(LinAlg* la) {
-  if (mode == NONE) scatter_none();
-  else if (mode == PRIMAL) scatter_primal(la);
-  else if (mode == ADJOINT) scatter_adjoint(la);
-  else fail("unknown mode: %d", mode);
+  op(this, la);
   elem = 0;
 }
 

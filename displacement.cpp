@@ -6,9 +6,11 @@ namespace mech {
 Displacement<ST>::Displacement(Disc* d, int m) {
   disc = d;
   dim = disc->dim;
-  mode = m;
   elem = 0;
   residual.resize(dim * disc->num_u_elem_nodes);
+  if (m == PRIMAL) op = &Displacement<ST>::scatter_primal;
+  else if (m == NONE) op = &Displacement<ST>::scatter_none;
+  else fail("displacement: invalid mode: %d", m);
   this->name = "u";
 }
 
@@ -52,7 +54,7 @@ void Displacement<ST>::at_point(apf::Vector3 const& p, double, double) {
   }
 }
 
-void Displacement<ST>::scatter_none() {
+void Displacement<ST>::scatter_none(LinAlg*) {
 }
 
 void Displacement<ST>::scatter_primal(LinAlg* la) {
@@ -65,21 +67,22 @@ void Displacement<ST>::scatter_primal(LinAlg* la) {
 }
 
 void Displacement<ST>::scatter(LinAlg* la) {
-  if (mode == NONE) scatter_none();
-  else if (mode == PRIMAL) scatter_primal(la);
-  else fail("unknown mode: %d", mode);
+  op(this, la);
   elem = 0;
 }
 
 Displacement<FADT>::Displacement(Disc* d, int m) {
   disc = d;
   dim = disc->dim;
-  mode = m;
   elem = 0;
   value.resize(dim);
   gradient.resize(dim * dim);
   node_fadt.resize(dim * disc->num_u_elem_nodes);
   residual.resize(dim * disc->num_u_elem_nodes);
+  if (m == PRIMAL) op = &Displacement<FADT>::scatter_primal;
+  else if (m == ADJOINT) op = &Displacement<FADT>::scatter_adjoint;
+  else if (m == NONE) op = &Displacement<FADT>::scatter_none;
+  else fail("displacement: invalid mode: %d", m);
   this->name = "u";
 }
 
@@ -129,7 +132,7 @@ void Displacement<FADT>::at_point(apf::Vector3 const& p, double, double) {
   }
 }
 
-void Displacement<FADT>::scatter_none() {
+void Displacement<FADT>::scatter_none(LinAlg*) {
 }
 
 void Displacement<FADT>::scatter_primal(LinAlg* la) {
@@ -151,10 +154,7 @@ void Displacement<FADT>::scatter_adjoint(LinAlg* la) {
 }
 
 void Displacement<FADT>::scatter(LinAlg* la) {
-  if (mode == NONE) scatter_none();
-  else if (mode == PRIMAL) scatter_primal(la);
-  else if (mode == ADJOINT) scatter_adjoint(la);
-  else fail("unkown mode: %d", mode);
+  op(this, la);
   elem = 0;
 }
 
