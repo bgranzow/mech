@@ -135,4 +135,10 @@ void add_to_primal(LinAlg* la, Disc* d) {
   apf::synchronize(d->p);
 }
 
+double get_resid_norm(LinAlg* la) {
+  double norm;
+  CALL(VecNorm(la->f, NORM_2, &norm));
+  return norm;
+}
+
 }

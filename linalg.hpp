@@ -25,6 +25,7 @@ void synchronize(LinAlg* la);
 void finalize(LinAlg* la);
 void solve(LinAlg* la);
 void add_to_primal(LinAlg* la, Disc* d);
+double get_resid_norm(LinAlg* la);
 
 }
 
