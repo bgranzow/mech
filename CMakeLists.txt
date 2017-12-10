@@ -114,14 +114,18 @@ set(cube_assoc "../mesh/cube/cube.txt")
 set(cube_msh_1p "../mesh/cube/cube-serial.smb")
 set(cube_msh_4p "../mesh/cube/cube.smb")
 
+set(notch2D_mdl "../mesh/notch2D/notch2D.dmg")
+set(notch2D_assoc "../mesh/notch2D/notch2D.txt")
+set(notch2D_msh_1p "../mesh/notch2D/notch2D-serial.smb")
+set(notch2D_msh_4p "../mesh/notch2D/notch2D.smb")
+
 serial_test(ex1_square_1p ex1 ${square_mdl} ${square_msh_1p} ${square_assoc})
 serial_test(ex1_cube_1p ex1 ${cube_mdl} ${cube_msh_1p} ${cube_assoc})
 mpi_test(ex1_square_4p ex1 ${square_mdl} ${square_msh_4p} ${square_assoc})
 mpi_test(ex1_cube_4p ex1 ${cube_mdl} ${cube_msh_4p} ${cube_assoc})
-
 serial_test(ex2_square_1p ex2 ${square_mdl} ${square_msh_1p} ${square_assoc})
 serial_test(ex2_cube_1p ex2 ${cube_mdl} ${cube_msh_1p} ${cube_assoc})
-
 mpi_test(ex3_square_4p ex3 ${square_mdl} ${square_msh_4p} ${square_assoc})
+mpi_test(ex4_notch2D_4p ex4 ${notch2D_mdl} ${notch2D_msh_4p} ${notch2D_assoc})
 
 bob_end_package()
