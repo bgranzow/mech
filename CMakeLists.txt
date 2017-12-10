@@ -33,6 +33,7 @@ pressure.cpp
 kinematics.cpp
 model.cpp
 elastic.cpp
+neohookean.cpp
 first_pk.cpp
 mresidual.cpp
 presidual.cpp
@@ -52,6 +53,7 @@ pressure.hpp
 kinematics.hpp
 model.hpp
 elastic.hpp
+neohookean.hpp
 first_pk.hpp
 mresidual.hpp
 presidual.hpp
@@ -100,6 +102,7 @@ endfunction()
 add_exe(ex1 ex1.cpp)
 add_exe(ex2 ex2.cpp)
 add_exe(ex3 ex3.cpp)
+add_exe(ex4 ex4.cpp)
 
 set(square_mdl "../mesh/square/square.dmg")
 set(square_assoc "../mesh/square/square.txt")
@@ -118,5 +121,7 @@ mpi_test(ex1_cube_4p ex1 ${cube_mdl} ${cube_msh_4p} ${cube_assoc})
 
 serial_test(ex2_square_1p ex2 ${square_mdl} ${square_msh_1p} ${square_assoc})
 serial_test(ex2_cube_1p ex2 ${cube_mdl} ${cube_msh_1p} ${cube_assoc})
+
+mpi_test(ex3_square_4p ex3 ${square_mdl} ${square_msh_4p} ${square_assoc})
 
 bob_end_package()

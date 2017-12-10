@@ -2,6 +2,7 @@
 #include "kinematics.hpp"
 #include "mechanics.hpp"
 #include "mresidual.hpp"
+#include "neohookean.hpp"
 #include "first_pk.hpp"
 #include "presidual.hpp"
 
@@ -15,6 +16,8 @@ void build_resid(Evaluators& E, Input* in, Disc* d, bool save) {
   RCP<Model<T>> cm;
   if (in->model == ELASTIC)
     cm = rcp(new Elastic<T>(u, d, in));
+  else if (in->model == NEOHOOKEAN)
+    cm = rcp(new Neohookean<T>(kin, d, in));
   else
     fail("unknown model: %d", in->model);
   auto first_pk = rcp(new FirstPK<T>(cm, kin, p, d, save));
