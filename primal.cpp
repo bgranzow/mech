@@ -47,6 +47,7 @@ static void compute_residual(Primal* primal, double t) {
   assemble(primal->resid, primal->disc, &(primal->la));
   finalize(&(primal->la));
   set_resid_dbcs(primal->input, primal->disc, &(primal->la), t);
+  finalize(&(primal->la));
   auto t1 = time();
   print(" > residual computed in %f seconds", t1 - t0);
 }
@@ -73,6 +74,30 @@ void solve_linear_primal(Input* in, Disc* d, double t) {
   solve(&(primal.la));
   add_to_primal(&(primal.la), d);
   compute_residual(&primal, t);
+}
+
+void solve_nonlinear_primal(Input* in, Disc* d, double t, int max, double tol) {
+  print("*** primal solve");
+  print("*** at time: %f", t);
+  print("*** dofs: %lu", d->num_total_dofs);
+  Primal primal(in, d);
+  construct_primal(&primal, t);
+  compute_jacobian(&primal, t);
+  int iter = 1;
+  bool converged = false;
+  while ((iter <= max) && (! converged)) {
+    print(" > (%d) newton iteration", iter);
+    compute_jacobian(&primal, t);
+    solve(&(primal.la));
+    add_to_primal(&(primal.la), d);
+    compute_residual(&primal, t);
+    double norm = get_resid_norm(&(primal.la));
+    print(" > ||R|| = %e", norm);
+    if (norm < tol) converged = true;
+    iter++;
+  }
+  if ((iter > max) && (! converged))
+    fail("newton's method failed in %d iterations", max);
 }
 
 }
