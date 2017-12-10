@@ -47,8 +47,10 @@ void PResidual<T>::do_small_strain(double ipw, double dv) {
 
 template <typename T>
 void PResidual<T>::do_large_strain(double ipw, double dv) {
-  (void)ipw;
-  (void)dv;
+  auto J = kin->J;
+  T dUdJ = 0.5*(J - 1.0/J);
+  for (int n = 0; n < disc->num_p_elem_nodes; ++n)
+    p->resid(n) += (dUdJ - (p->val() / kappa)) * p->BF[n] * ipw * dv;
 }
 
 template <typename T>
