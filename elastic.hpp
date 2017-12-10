@@ -16,7 +16,7 @@ struct Elastic : public Model<T> {
   void set_elem_set(std::string const& set);
   void at_point(Vector const&, double, double);
 
-  TensorT& get_sigma_dev() { return sigma_dev; }
+  TensorT const& get_sigma_dev() { return sigma_dev; }
   bool small_strain() { return true; }
 
   Disc* disc;
