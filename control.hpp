@@ -34,7 +34,7 @@ using Evaluators = std::vector<RCP<Integrator>>;
 
 typedef double (*function)(Vector const& x, double t);
 
-enum ModelType { ELASTIC, NEOHOOKEAN, J2 };
+enum ModelType { ELASTIC, NEOHOOKEAN, PLASTIC };
 enum EvalType { PRIMAL, ADJOINT, NONE };
 
 struct DBC {
