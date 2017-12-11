@@ -52,6 +52,7 @@ void set_jacob_dbcs(Input* in, Disc* d, LinAlg* la, double t) {
       GID row = get_u_gid(d, n, idx);
       rows.push_back(row);
       set_to_residual(la, row, sol - v);
+      set_to_functional(la, row, 0.0);
     }
   }
   diag_jacobian_rows(la, rows);
