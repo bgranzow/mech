@@ -18,6 +18,8 @@ struct LinAlg {
 void add_to_jacobian(LinAlg* la, GID row, GIDs const& cols, FADT const& resid);
 void add_to_residual(LinAlg* la, GID row, double val);
 void set_to_residual(LinAlg* la, GID row, double val);
+void add_to_functional(LinAlg* la, GID row, double val);
+void set_to_functional(LinAlg* la, GID row, double val);
 void diag_jacobian_rows(LinAlg* la, GIDs const& rows);
 void zero_residual(LinAlg* la);
 void zero_jacobian(LinAlg* la);
