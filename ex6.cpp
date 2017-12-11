@@ -1,0 +1,41 @@
+#include <control.hpp>
+#include <finedisc.hpp>
+
+namespace mech {
+
+static void test_disc(Disc* d) {
+  print("dim: %d", d->dim);
+  print("elem type: %d", d->elem_type);
+  print("num u elem nodes: %d", d->num_u_elem_nodes);
+  print("num p elem nodes: %d", d->num_p_elem_nodes);
+  print("num elem dofs: %d", d->num_elem_dofs);
+  print("num owned dofs: %lu", d->num_owned_dofs);
+  print("num total dofs: %lu", d->num_total_dofs);
+}
+
+static void run(char** argv) {
+  Input in;
+  Disc disc;
+  FineDisc fine_disc;
+  in.geom_file = argv[1];
+  in.mesh_file = argv[2];
+  in.assoc_file = argv[3];
+  init_disc(&disc, &in);
+  build_disc_data(&disc);
+  test_disc(&disc);
+  free_disc_data(&disc);
+  init_fine_disc(&fine_disc, &disc);
+  build_disc_data(&fine_disc);
+  test_disc(&fine_disc);
+  free_disc_data(&fine_disc);
+  free_fine_disc(&fine_disc);
+  free_disc(&disc);
+}
+
+}
+
+int main(int argc, char** argv) {
+  mech::init(&argc, &argv);
+  mech::run(argv);
+  mech::free();
+}

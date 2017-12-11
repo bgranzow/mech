@@ -27,6 +27,7 @@ list(REVERSE Trilinos_TPL_LIBRARIES)
 set(SOURCES
 control.cpp
 disc.cpp
+finedisc.cpp
 states.cpp
 displacement.cpp
 pressure.cpp
@@ -48,6 +49,7 @@ primal.cpp
 set(HEADERS
 control.hpp
 disc.hpp
+finedisc.hpp
 states.hpp
 displacement.hpp
 pressure.hpp
@@ -106,6 +108,7 @@ add_exe(ex2 ex2.cpp)
 add_exe(ex3 ex3.cpp)
 add_exe(ex4 ex4.cpp)
 add_exe(ex5 ex5.cpp)
+add_exe(ex6 ex6.cpp)
 
 set(square_mdl "../mesh/square/square.dmg")
 set(square_assoc "../mesh/square/square.txt")
