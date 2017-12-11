@@ -39,6 +39,7 @@ J2.cpp
 first_pk.cpp
 mresidual.cpp
 presidual.cpp
+qoi.cpp
 mechanics.cpp
 linalg.cpp
 assembly.cpp
@@ -61,6 +62,7 @@ J2.hpp
 first_pk.hpp
 mresidual.hpp
 presidual.hpp
+qoi.hpp
 mechanics.hpp
 linalg.hpp
 )
