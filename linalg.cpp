@@ -98,6 +98,7 @@ void solve(LinAlg* la) {
   CALL(KSPGetPC(ksp, &pc));
   CALL(PCSetType(pc, PCLU));
   CALL(KSPSolve(ksp, la->f, la->dx));
+  CALL(KSPDestroy(&ksp));
   double t1 = time();
   print(" > linear system solved in %f seconds", t1-t0);
 }
