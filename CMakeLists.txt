@@ -34,6 +34,7 @@ kinematics.cpp
 model.cpp
 elastic.cpp
 neohookean.cpp
+J2.cpp
 first_pk.cpp
 mresidual.cpp
 presidual.cpp
@@ -54,6 +55,7 @@ kinematics.hpp
 model.hpp
 elastic.hpp
 neohookean.hpp
+J2.hpp
 first_pk.hpp
 mresidual.hpp
 presidual.hpp
@@ -103,6 +105,7 @@ add_exe(ex1 ex1.cpp)
 add_exe(ex2 ex2.cpp)
 add_exe(ex3 ex3.cpp)
 add_exe(ex4 ex4.cpp)
+add_exe(ex5 ex5.cpp)
 
 set(square_mdl "../mesh/square/square.dmg")
 set(square_assoc "../mesh/square/square.txt")
