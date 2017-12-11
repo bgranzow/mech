@@ -1,4 +1,5 @@
 #include "elastic.hpp"
+#include "J2.hpp"
 #include "kinematics.hpp"
 #include "mechanics.hpp"
 #include "mresidual.hpp"
@@ -18,6 +19,8 @@ void build_resid(Evaluators& E, Input* in, Disc* d, bool save) {
     cm = rcp(new Elastic<T>(u, d, in));
   else if (in->model == NEOHOOKEAN)
     cm = rcp(new Neohookean<T>(kin, d, in));
+  else if (in->model == PLASTIC)
+    cm = rcp(new J2<T>(kin, d, in, save));
   else
     fail("unknown model: %d", in->model);
   auto first_pk = rcp(new FirstPK<T>(cm, kin, p, d, save));
