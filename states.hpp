@@ -26,6 +26,8 @@ void set_scalar(apf::Field* f, apf::MeshEntity* e, int ip, T const& v);
 template <typename T>
 void set_tensor(apf::Field* f, apf::MeshEntity* e, int ip, TensorT<T> const& v);
 
+void update_states(Disc* d);
+
 }
 
 #endif

@@ -1,14 +1,12 @@
 #include <control.hpp>
 #include <disc.hpp>
-#include <displacement.hpp>
 #include <mechanics.hpp>
-#include <pressure.hpp>
-#include <linalg.hpp>
+#include <states.hpp>
 
 namespace mech {
 
 double zero(Vector const&, double) { return 0; }
-double hundredth(Vector const&, double) { return 0.01; }
+double hundredth(Vector const&, double t) { return 0.01 * t; }
 
 static void setup(Input* in, char** argv) {
   in->model = PLASTIC;
@@ -23,10 +21,10 @@ static void setup(Input* in, char** argv) {
   in->dbcs = { dbc1, dbc2, dbc3 };
 }
 
-static void output(Disc* d) {
+static void output(Disc* d, std::string const& n) {
   auto p = apf::createFieldOn(d->mesh, "p2", apf::SCALAR);
   apf::projectField(p, d->p);
-  apf::writeVtkFiles("out_ex5", d->mesh);
+  apf::writeVtkFiles(n.c_str(), d->mesh);
   apf::destroyField(p);
 }
 
@@ -36,8 +34,15 @@ static void run(char** argv) {
   setup(&in, argv);
   init_disc(&disc, &in);
   build_disc_data(&disc);
-  solve_nonlinear_primal(&in, &disc, 0.0, 10, 1.0e-8);
-  output(&disc);
+  double t = 0;
+  double dt = 1.0;
+  for (int i = 0; i < 5; ++i) {
+    t += dt;
+    auto name = "out_ex5_" + std::to_string(i);
+    solve_nonlinear_primal(&in, &disc, t, 10, 1.0e-8);
+    output(&disc, name);
+    update_states(&disc);
+  }
   free_disc_data(&disc);
   free_disc(&disc);
 }

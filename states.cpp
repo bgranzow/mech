@@ -1,4 +1,5 @@
 #include "control.hpp"
+#include "disc.hpp"
 #include "states.hpp"
 #include <apf.h>
 
@@ -46,6 +47,11 @@ void set_tensor(apf::Field* f, apf::MeshEntity* e, int ip, TensorT<T> const& v) 
   for (size_t j = 0; j < v.get_dimension(); ++j)
     val[i][j] = get_val(v(i,j));
   apf::setMatrix(f, e, ip, val);
+}
+
+void update_states(Disc* d) {
+  apf::copyData(d->Fp_old, d->Fp);
+  apf::copyData(d->eqps_old, d->eqps);
 }
 
 template void get_scalar(apf::Element* e, Vector const& p, ST& v);
