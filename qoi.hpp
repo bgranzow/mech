@@ -14,6 +14,7 @@ struct QoI<ST> : public Integrator {
   virtual ~QoI();
   ST const& get_qoi_value() const { return qoi_value; }
   ST const& get_elem_value() const { return elem_value; }
+  virtual void set_fields(Evaluators const&) {}
   virtual void set_time(double) {}
   virtual void set_elem_set(std::string const&) {}
   virtual void pre_process(LinAlg*);
@@ -35,6 +36,7 @@ struct QoI<FADT> : public Integrator {
   virtual ~QoI();
   ST const& get_qoi_value() const { return qoi_value; }
   FADT const& get_elem_value() const { return elem_value; }
+  virtual void set_fields(Evaluators const&) {}
   virtual void set_time(double) {}
   virtual void set_elem_set(std::string const&) {}
   virtual void pre_process(LinAlg*);
