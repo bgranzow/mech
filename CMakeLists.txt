@@ -45,6 +45,7 @@ linalg.cpp
 assembly.cpp
 dbcs.cpp
 primal.cpp
+adjoint.cpp
 )
 
 set(HEADERS
@@ -111,6 +112,7 @@ add_exe(ex3 ex3.cpp)
 add_exe(ex4 ex4.cpp)
 add_exe(ex5 ex5.cpp)
 add_exe(ex6 ex6.cpp)
+add_exe(ex7 ex7.cpp)
 
 set(square_mdl "../mesh/square/square.dmg")
 set(square_assoc "../mesh/square/square.txt")

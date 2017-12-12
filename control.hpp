@@ -14,6 +14,7 @@ using MeshElement = VectorElement;
 namespace mech {
 
 struct Disc;
+struct FineDisc;
 struct LinAlg;
 struct Integrator;
 
