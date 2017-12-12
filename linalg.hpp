@@ -27,6 +27,7 @@ void zero_jacobian(LinAlg* la);
 void synchronize(LinAlg* la);
 void finalize(LinAlg* la);
 void solve_primal_sys(LinAlg* la);
+void solve_adjoint_sys(LinAlg* la);
 void add_to_primal(LinAlg* la, Disc* d);
 double get_resid_norm(LinAlg* la);
 

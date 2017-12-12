@@ -119,6 +119,23 @@ void solve_primal_sys(LinAlg* la) {
   print(" > linear system solved in %f seconds", t1-t0);
 }
 
+void solve_adjoint_sys(LinAlg* la) {
+  double t0 = time();
+  KSP ksp;
+  PC pc;
+  CALL(KSPCreate(PETSC_COMM_WORLD, &ksp));
+  CALL(KSPSetTolerances(ksp, 1.0e-10, 1.0e-10,
+        PETSC_DEFAULT, 2000));
+  CALL(KSPSetOperators(ksp, la->J, la->J));
+  CALL(KSPSetFromOptions(ksp));
+  CALL(KSPGetPC(ksp, &pc));
+  CALL(PCSetType(pc, PCLU));
+  CALL(KSPSolve(ksp, la->q, la->dx));
+  CALL(KSPDestroy(&ksp));
+  double t1 = time();
+  print(" > linear system solved in %f seconds", t1 - t0);
+}
+
 void add_to_primal(LinAlg* la, Disc* d) {
   PetscScalar* dx;
   CALL(VecGetArray(la->dx, &dx));
