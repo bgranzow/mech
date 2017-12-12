@@ -71,7 +71,7 @@ void solve_linear_primal(Input* in, Disc* d, double t) {
   Primal primal(in, d);
   construct_primal(&primal, t);
   compute_jacobian(&primal, t);
-  solve(&(primal.la));
+  solve_primal_sys(&(primal.la));
   add_to_primal(&(primal.la), d);
   compute_residual(&primal, t);
 }
@@ -88,7 +88,7 @@ void solve_nonlinear_primal(Input* in, Disc* d, double t, int max, double tol) {
   while ((iter <= max) && (! converged)) {
     print(" > (%d) newton iteration", iter);
     compute_jacobian(&primal, t);
-    solve(&(primal.la));
+    solve_primal_sys(&(primal.la));
     add_to_primal(&(primal.la), d);
     compute_residual(&primal, t);
     double norm = get_resid_norm(&(primal.la));

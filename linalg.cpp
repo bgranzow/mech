@@ -75,6 +75,10 @@ void zero_residual(LinAlg* la) {
   CALL(VecSet(la->f, 0.0));
 }
 
+void zero_functional(LinAlg* la) {
+  CALL(VecSet(la->q, 0.0));
+}
+
 void zero_jacobian(LinAlg* la) {
   CALL(MatZeroEntries(la->J));
 }
@@ -97,7 +101,7 @@ void finalize(LinAlg* la) {
   CALL(MatAssemblyEnd(la->J, MAT_FINAL_ASSEMBLY));
 }
 
-void solve(LinAlg* la) {
+void solve_primal_sys(LinAlg* la) {
   double t0 = time();
   KSP ksp;
   PC pc;

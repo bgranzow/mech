@@ -22,10 +22,11 @@ void add_to_functional(LinAlg* la, GID row, double val);
 void set_to_functional(LinAlg* la, GID row, double val);
 void diag_jacobian_rows(LinAlg* la, GIDs const& rows);
 void zero_residual(LinAlg* la);
+void zero_functional(LinAlg* la);
 void zero_jacobian(LinAlg* la);
 void synchronize(LinAlg* la);
 void finalize(LinAlg* la);
-void solve(LinAlg* la);
+void solve_primal_sys(LinAlg* la);
 void add_to_primal(LinAlg* la, Disc* d);
 double get_resid_norm(LinAlg* la);
 
