@@ -136,8 +136,8 @@ void Displacement<FADT>::scatter_none(LinAlg*) {
 }
 
 void Displacement<FADT>::scatter_primal(LinAlg* la) {
-  auto ent = apf::getMeshEntity(elem);
   GIDs cols;
+  auto ent = apf::getMeshEntity(elem);
   get_gids(disc, ent, cols);
   for (int n = 0; n < disc->num_u_elem_nodes; ++n) {
     for (int i = 0; i < dim; ++i) {
@@ -150,7 +150,17 @@ void Displacement<FADT>::scatter_primal(LinAlg* la) {
 }
 
 void Displacement<FADT>::scatter_adjoint(LinAlg* la) {
-  (void)la;
+  GIDs cols;
+  auto ent = apf::getMeshEntity(elem);
+  get_gids(disc, ent, cols);
+  for (int n = 0; n < disc->num_u_elem_nodes; ++n) {
+    for (int i = 0; i < dim; ++i) {
+      auto v = resid(n, i);
+      GID row = get_u_gid(disc, ent, n, i);
+      add_to_residual(la, row, v.val());
+      add_to_adjoint(la, row, cols, v);
+    }
+  }
 }
 
 void Displacement<FADT>::scatter(LinAlg* la) {

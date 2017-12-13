@@ -128,8 +128,8 @@ void Pressure<FADT>::scatter_none(LinAlg*) {
 }
 
 void Pressure<FADT>::scatter_primal(LinAlg* la) {
-  auto ent = apf::getMeshEntity(elem);
   GIDs cols;
+  auto ent = apf::getMeshEntity(elem);
   get_gids(disc, ent, cols);
   for (int n = 0; n < disc->num_p_elem_nodes; ++n) {
     auto v = resid(n);
@@ -140,7 +140,15 @@ void Pressure<FADT>::scatter_primal(LinAlg* la) {
 }
 
 void Pressure<FADT>::scatter_adjoint(LinAlg* la) {
-  (void)la;
+  GIDs cols;
+  auto ent = apf::getMeshEntity(elem);
+  get_gids(disc, ent, cols);
+  for (int n = 0; n < disc->num_p_elem_nodes; ++n) {
+    auto v = resid(n);
+    GID row = get_p_gid(disc, ent, n);
+    add_to_residual(la, row, v.val());
+    add_to_adjoint(la, row, cols, v);
+  }
 }
 
 void Pressure<FADT>::scatter(LinAlg* la) {
