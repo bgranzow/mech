@@ -22,6 +22,8 @@ void solve_nonlinear_primal(Input* in, Disc* d, double t, int max, double tol);
 
 void solve_adjoint(Input* in, FineDisc* d, RCP<QoI<FADT>> qoi, double t);
 
+void compute_functional(Input* in, Disc* d, RCP<QoI<ST>> qoi, double t);
+
 void set_resid_dbcs(Input* in, Disc* d, LinAlg* la, double t);
 
 void set_jacob_dbcs(Input* in, Disc* d, LinAlg* la, double t);

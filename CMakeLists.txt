@@ -46,6 +46,7 @@ assembly.cpp
 dbcs.cpp
 primal.cpp
 adjoint.cpp
+functional.cpp
 )
 
 set(HEADERS
