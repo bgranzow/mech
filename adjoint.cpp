@@ -53,6 +53,10 @@ void solve_adjoint(Input* in, FineDisc* d, RCP<QoI<FADT>> qoi, double t) {
   construct_evaluators(&adjoint);
   compute_adjoint(&adjoint);
   solve_adjoint_sys(&(adjoint.la));
+  set_to_adjoint(&(adjoint.la), d);
+  double e;
+  VecDot(adjoint.la.f, adjoint.la.dx, &e);
+  print(" > -z.R : %.15e", -e);
 }
 
 }
