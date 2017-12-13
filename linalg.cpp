@@ -1,4 +1,4 @@
-#include "disc.hpp"
+#include "finedisc.hpp"
 #include "linalg.hpp"
 
 #include <PCU.h>
@@ -61,6 +61,18 @@ void add_to_jacobian(LinAlg* la, GID row, GIDs const& cols, FADT const& val) {
     v[i] = val.fastAccessDx(i);
   }
   CALL(MatSetValues(la->J, 1, r, sz, c, v, ADD_VALUES));
+}
+
+void add_to_adjoint(LinAlg* la, GID row, GIDs const& cols, FADT const& val) {
+  int sz = cols.size();
+  PetscInt c[1] = { PetscInt(row) };
+  PetscInt r[sz];
+  PetscScalar v[sz];
+  for (int i = 0; i < sz; ++i) {
+    r[i] = cols[i];
+    v[i] = val.fastAccessDx(i);
+  }
+  CALL(MatSetValues(la->J, sz, r, 1, c, v, ADD_VALUES));
 }
 
 void diag_jacobian_rows(LinAlg* la, GIDs const& rows) {
@@ -150,7 +162,7 @@ void add_to_primal(LinAlg* la, Disc* d) {
     auto node = u_nodes[n];
     auto ent = node.entity;
     auto lnode = node.node;
-    if (! d->mesh->isOwned(node.entity)) continue;
+    if (! d->mesh->isOwned(ent)) continue;
     for (int i = 0; i < d->dim; ++i)
       du[i] = dx[row++];
     apf::getVector(d->u, ent, lnode, u);
@@ -167,6 +179,36 @@ void add_to_primal(LinAlg* la, Disc* d) {
   }
   apf::synchronize(d->u);
   apf::synchronize(d->p);
+}
+
+void set_to_adjoint(LinAlg* la, FineDisc* d) {
+  PetscScalar* dx;
+  CALL(VecGetArray(la->dx, &dx));
+  int row = 0;
+  Vector zu(0,0,0);
+  apf::DynamicArray<apf::Node> u_nodes;
+  apf::DynamicArray<apf::Node> p_nodes;
+  apf::getNodes(d->u_nmbr, u_nodes);
+  apf::getNodes(d->p_nmbr, p_nodes);
+  for (size_t n = 0; n < u_nodes.size(); ++n) {
+    auto node = u_nodes[n];
+    auto ent = node.entity;
+    auto lnode = node.node;
+    if (! d->mesh->isOwned(ent)) continue;
+    for (int i = 0; i < d->dim; ++i)
+      zu[i] = dx[row++];
+    apf::setVector(d->zu, ent, lnode, zu);
+  }
+  for (size_t n = 0; n < p_nodes.size(); ++n) {
+    auto node = p_nodes[n];
+    auto ent = node.entity;
+    auto lnode = node.node;
+    if (! d->mesh->isOwned(ent)) continue;
+    auto zp = dx[row++];
+    apf::setScalar(d->zp, ent, lnode, zp);
+  }
+  apf::synchronize(d->zu);
+  apf::synchronize(d->zp);
 }
 
 double get_resid_norm(LinAlg* la) {
